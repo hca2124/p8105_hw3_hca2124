@@ -1,0 +1,14 @@
+---
+title: "p8105_hw3_hca2124"
+author: "Helene Apollon"
+date: "2026-10-18"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+library(p8105.datasets)
+data("ny_noaa")
+```
+
+The data contains daily weather records from New York weather stations. It has `r (nrow(ny_noaa))` rows and `r (ncol(ny_noaa))` columns. Important variables include precipitation (tents of mm), snowfall (mm), snow depth (mm), minimum and maximum temperature (tents of degrees C), date of observation, and weather station ID. The data shows a specific station at a date in time from `r min(ny_noaa$date)` to `r max(ny_noaa$date)` across a number of `r n_distinct(ny_noaa$id)` stations.
