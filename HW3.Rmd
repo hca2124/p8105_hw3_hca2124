@@ -6,9 +6,83 @@ output: github_document
 ---
 
 ```{r}
+library(patchwork)
+library(ggridges)
 library(tidyverse)
 library(p8105.datasets)
 data("ny_noaa")
 ```
 
 The data contains daily weather records from New York weather stations. It has `r (nrow(ny_noaa))` rows and `r (ncol(ny_noaa))` columns. Important variables include precipitation (tents of mm), snowfall (mm), snow depth (mm), minimum and maximum temperature (tents of degrees C), date of observation, and weather station ID. The data shows a specific station at a date in time from `r min(ny_noaa$date)` to `r max(ny_noaa$date)` across a number of `r n_distinct(ny_noaa$id)` stations.
+
+(missing data)
+
+```{r}
+noaa_clean <- ny_noaa |>
+  mutate(
+    year = year(date),
+    month = month(date),
+    day = day(date),
+    prcp = prcp / 10,                  #changing tenths of mm to mm#
+    tmax = as.numeric(tmax) / 10,      #changing tenths of degree C to degree C#
+    tmin = as.numeric(tmin) / 10,      #changing tenths of degree C to degree C#
+  )
+```
+
+```{r}
+snow_fall <- noaa_clean |>
+  count(snow, sort = TRUE)
+
+```
+
+For snowfall, the most commonly observed value is `r snow_fall$snow[1]` mm. This is because it does not snow often during the year such as during the summer, spring, and fall seasons. The next most commonly observed value is `r snow_fall$snow[2]` mm. This is because there are no data recorded for snow fall at a particular station. The next most observed value of snowfall is non-zero at `r snow_fall$snow[3]` mm.
+
+```{r}
+tmax_avg <- noaa_clean |>
+  filter(month == 1 | month == 7) |>
+  mutate(month_name = factor(month, levels = c(1,7), labels = c("January", "July"))) |>
+  group_by(id, year, month_name) |>
+  summarise(mean_tmax = mean(tmax, na.rm = TRUE), .groups = "drop")
+```
+
+```{r}
+tmax_avg |>
+  ggplot(aes(x = year, y = mean_tmax, group = id)) +
+  geom_line(alpha = .5) +
+  geom_point(alpha = .5) +
+  facet_grid(. ~ month_name) +
+  labs(
+    title = "Average daily maximum temperature by station in January vs July",
+    x = "Year",
+    y = "Mean Maximum Temperature(C) ",
+    caption = "NOAA Data"
+  )
+```
+
+
+```{r}
+tmax_tmin <- noaa_clean |>
+  drop_na(tmax, tmin) |>
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_hex(bins = 60) +
+  viridis::scale_color_viridis(trans = "sqrt", name = "Count") +
+  labs(
+    title = "tmax vs tmin",
+    x = "Minimum daily temperature (C)",
+    y = "Maximum daily temperature (C)"
+  )
+
+snow_year <- noaa_clean |>
+  filter(snow > 0, snow < 100) |>
+  mutate(year = factor(year)) |>
+  ggplot(aes(x = snow, y = year)) +
+  geom_density_ridges(scale = .85) +
+  labs(
+    title = "Snowfall Distribution by Year",
+    x = "Snowfall (mm)",
+    y = "Year"
+  )
+
+tmax_tmin + snow_year
+```
+
