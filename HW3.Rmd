@@ -14,9 +14,8 @@ library(p8105.datasets)
 data("ny_noaa")
 ```
 
-The data contains daily weather records from New York weather stations. It has `r (nrow(ny_noaa))` rows and `r (ncol(ny_noaa))` columns. Important variables include precipitation (tents of mm), snowfall (mm), snow depth (mm), minimum and maximum temperature (tents of degrees C), date of observation, and weather station ID. The data shows a specific station at a date in time from `r min(ny_noaa$date)` to `r max(ny_noaa$date)` across a number of `r n_distinct(ny_noaa$id)` stations.
+The data contains daily weather records from New York weather stations. It has `r (nrow(ny_noaa))` rows and `r (ncol(ny_noaa))` columns. Important variables include precipitation (tents of mm), snowfall (mm), snow depth (mm), minimum and maximum temperature (tents of degrees C), date of observation, and weather station ID. The data shows a specific station at a date in time from `r min(ny_noaa$date)` to `r max(ny_noaa$date)` across a number of `r n_distinct(ny_noaa$id)` stations.The missing data are mainly comprised of the minimum and maximum temperatures, as well as missing data for snow depth (mm).
 
-(missing data)
 
 ```{r}
 noaa_clean <- ny_noaa |>

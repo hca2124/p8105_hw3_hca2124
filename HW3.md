@@ -33,9 +33,9 @@ It has 2595176 rows and 7 columns. Important variables include
 precipitation (tents of mm), snowfall (mm), snow depth (mm), minimum and
 maximum temperature (tents of degrees C), date of observation, and
 weather station ID. The data shows a specific station at a date in time
-from 1981-01-01 to 2010-12-31 across a number of 747 stations.
-
-(missing data)
+from 1981-01-01 to 2010-12-31 across a number of 747 stations.The
+missing data are mainly comprised of the minimum and maximum
+temperatures, as well as missing data for snow depth (mm).
 
 ``` r
 noaa_clean <- ny_noaa |>
@@ -466,7 +466,7 @@ citi_df |>
 | W 31 St & 7 Ave          |             146 |
 
 In July of 2024, the most popular starting station was Pier 61 at
-Chelsea Piers
+Chelsea Piers with 163 rides.
 
 ``` r
 citi_df |>
@@ -494,6 +494,17 @@ citi_df |>
 
 ![](HW3_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
+In both 2020 and 2024, the median ride duration was higher in July vs
+January. In 2020, the median ride duration in July was around 15
+minutes, with the highest median ride duration being on Saturday and
+Sunday at around 16 minutes. The median ride duration in January was
+around 8.5 minutes, with the highest median ride durations being on
+Saturday and Sunday at around 10 minutes. In 2024, the median ride times
+in January and July were lower than in 2020. In July, the median ride
+time was about 10 minutes, with the highest being on Saturday at around
+11 minutes. In January, the median ride time was about 7.5 minutes with
+the highest day being Saturday around 8 minutes.
+
 ``` r
 citi_df |>
   filter(year == "2024") |>
@@ -509,4 +520,8 @@ citi_df |>
   )
 ```
 
-![](HW3_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](HW3_files/figure-gfm/unnamed-chunk-22-1.png)<!-- --> Ride duration
+was fairly equal by bike type as classic and electric bikes have similar
+distributions. In January and July, casual riders had a longer ride
+duration than members. The mean ride time remained under 50 minutes,
+however there are many outliers of longer rides for each bike type.
