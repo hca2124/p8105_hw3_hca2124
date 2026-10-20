@@ -335,3 +335,178 @@ at around 6am, it peaks to about 12 MIMS at around 8am where it remains
 constant before it begins to decrease at around 8pm.
 
 \#Question 3
+
+``` r
+jan_2020_df =
+  read_csv("./Jan 2020 Citi.csv.zip") |>
+  janitor::clean_names() |>
+  mutate(year = "2020", month = "January")
+```
+
+    ## Rows: 12420 Columns: 7
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (6): ride_id, rideable_type, weekdays, start_station_name, end_station_n...
+    ## dbl (1): duration
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+jan_2024_df =
+  read_csv("./Jan 2024 Citi.csv.zip") |>
+  janitor::clean_names() |>
+  mutate(year = "2024", month = "January")
+```
+
+    ## Rows: 18861 Columns: 7
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (6): ride_id, rideable_type, weekdays, start_station_name, end_station_n...
+    ## dbl (1): duration
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+july_2020_df =
+  read_csv("./July 2020 Citi.csv.zip") |>
+  janitor::clean_names() |>
+  mutate(year = "2020", month = "July")
+```
+
+    ## Rows: 21048 Columns: 7
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (6): ride_id, rideable_type, weekdays, start_station_name, end_station_n...
+    ## dbl (1): duration
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+july_2024_df =
+  read_csv("./July 2024 Citi.csv.zip") |>
+  janitor::clean_names() |>
+  mutate(year = "2024", month = "July")
+```
+
+    ## Rows: 47156 Columns: 7
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (6): ride_id, rideable_type, weekdays, start_station_name, end_station_n...
+    ## dbl (1): duration
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+citi_df = bind_rows(jan_2020_df, jan_2024_df, july_2020_df, july_2024_df)
+```
+
+``` r
+citi_df =
+  citi_df |>
+  mutate(
+    month = factor(month, levels = c("January", "July")),
+    year = factor(year),
+    weekdays = factor(
+      weekdays, 
+      levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+    ),
+    member_casual = factor(member_casual),
+    rideable_type = factor(rideable_type)
+  )
+```
+
+This dataset shows rides taken on NYC Citi Bikes in 2020 and 2024 of the
+months January and July. It has a total of 99485 rides and 9 columns.
+Key variables included ride duration (`duration`), day of the week
+(`weekdays`), rider membership status (`member_casual`), and type of
+bike (`rideable_type`).
+
+``` r
+citi_df |>
+  count(year, month, member_casual) |>
+  pivot_wider(
+    names_from = member_casual,
+    values_from = n
+  ) |>
+  knitr::kable()
+```
+
+| year | month   | casual | member |
+|:-----|:--------|-------:|-------:|
+| 2020 | January |    984 |  11436 |
+| 2020 | July    |   5637 |  15411 |
+| 2024 | January |   2108 |  16753 |
+| 2024 | July    |  10894 |  36262 |
+
+In total, there were 79862 rides from members and 19623 rides from
+casual riders. The most rides occurred in July 2024 with a total of
+47156 rides, with members having a larger number of rides compared to
+casuals.
+
+``` r
+citi_df |>
+  filter(year == "2024", month == "July") |>
+  count(start_station_name, sort = TRUE) |>
+  head(5) |>
+  knitr::kable(
+    col.names = c("Starting station", "Number of rides")
+  )
+```
+
+| Starting station         | Number of rides |
+|:-------------------------|----------------:|
+| Pier 61 at Chelsea Piers |             163 |
+| University Pl & E 14 St  |             155 |
+| W 21 St & 6 Ave          |             152 |
+| West St & Chambers St    |             150 |
+| W 31 St & 7 Ave          |             146 |
+
+In July of 2024, the most popular starting station was Pier 61 at
+Chelsea Piers
+
+``` r
+citi_df |>
+  group_by(year, month, weekdays) |>
+  summarise(median_duration = median(duration, na.rm = TRUE)) |>
+  ungroup() |>
+  ggplot(aes(x = weekdays, y = median_duration, color = month, group = month)) +
+  geom_point() +
+  geom_line() +
+  facet_grid(. ~ year) +
+  labs(
+    title = "Median ride duration by day of the week, month, and year",
+    x = "Day of the Week",
+    y = "Median ride duration (minutes)",
+    color = "Month"
+  )
+```
+
+    ## `summarise()` has regrouped the output.
+    ## ℹ Summaries were computed grouped by year, month, and weekdays.
+    ## ℹ Output is grouped by year and month.
+    ## ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+    ## ℹ Use `summarise(.by = c(year, month, weekdays))` for per-operation grouping
+    ##   (`?dplyr::dplyr_by`) instead.
+
+![](HW3_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+
+``` r
+citi_df |>
+  filter(year == "2024") |>
+  ggplot(aes(x = member_casual, y = duration, fill = rideable_type)) +
+  geom_boxplot(alpha = .7) +
+  facet_grid(. ~ month) +
+  scale_y_continuous(trans = "sqrt") +
+  labs(
+    title = "Ride duration in 2024 by month, membership staus, and bike type",
+    x = "Membership status",
+    y = "Ride duration (minutes)",
+    fill = "Bike type"
+  )
+```
+
+![](HW3_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
